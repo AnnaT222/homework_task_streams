@@ -29,6 +29,7 @@ const transformData = (readableStream, writableStream, operation) => {
             break;
         default:
             console.log("Invalid operation!");
+            process.exit(0)
             break;
     }
 }
