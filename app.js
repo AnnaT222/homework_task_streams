@@ -1,37 +1,39 @@
-import fs, { createReadStream, createWriteStream } from "fs"
-import { Transform } from "stream"
-
+import fs from "fs"
+import { Transform, pipeline } from "stream"
 const transformData = (readableStream, writableStream, operation) => {
-    switch (true) {
-        case operation == "uppercase":
-            const upperCase = new Transform({
+    let transform
+    switch (operation) {
+        case "uppercase":
+            transform = new Transform({
                 transform(chunk, enc, callback) {
                     callback(null, chunk.toString().toUpperCase())
                 }
             })
-            readableStream.pipe(upperCase).pipe(writableStream)
             break;
-        case operation == "lowercase":
-            const lowerCase = new Transform({
+        case "lowercase":
+            transform = new Transform({
                 transform(chunk, enc, callback) {
                     callback(null, chunk.toString().toLowerCase())
                 }
             })
-            readableStream.pipe(lowerCase).pipe(writableStream)
             break;
-        case operation == "reverse":
-            const reversedData = new Transform({
+        case "reverse":
+            transform = new Transform({
                 transform(chunk, enc, callback) {
                     callback(null, chunk.reverse())
                 }
             })
-            readableStream.pipe(reversedData).pipe(writableStream)
             break;
         default:
-            console.log("Invalid operation!");
+            console.log("Invalid operation!!!!!");
             process.exit(0)
             break;
     }
+    pipeline(readableStream, transform, writableStream, (err) => {
+        if (err) {
+            console.error("Pipeline failed:", err);
+        }
+    })
 }
 
 const inputFileName = () => {
