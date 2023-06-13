@@ -1,34 +1,28 @@
 import fs from "fs"
 import { Transform, pipeline } from "stream"
-const transformData = (readableStream, writableStream, operation) => {
-    let transform
-    switch (operation) {
-        case "uppercase":
-            transform = new Transform({
-                transform(chunk, enc, callback) {
-                    callback(null, chunk.toString().toUpperCase())
-                }
-            })
-            break;
-        case "lowercase":
-            transform = new Transform({
-                transform(chunk, enc, callback) {
-                    callback(null, chunk.toString().toLowerCase())
-                }
-            })
-            break;
-        case "reverse":
-            transform = new Transform({
-                transform(chunk, enc, callback) {
-                    callback(null, chunk.reverse())
-                }
-            })
-            break;
-        default:
-            console.log("Invalid operation!!!!!");
-            process.exit(0)
-            break;
-    }
+let operation = process.argv[4]
+function transformData(readableStream, writableStream) {
+    const transform = new Transform({
+        transform(chunk, enc, callback) {
+            const data = chunk.toString()
+            console.log(data);
+            switch (operation) {
+                case "uppercase":
+                    callback(null, data.toUpperCase())
+                    break;
+                case "lowercase":
+                    callback(null, data.toLowerCase())
+                    break;
+                case "reverse":
+                    callback(null, data.reverse())
+                    break;
+                default:
+                    console.log("Invalid operation!!!!!");
+                    process.exit(0)
+                    break;
+            }
+        }
+    })
     pipeline(readableStream, transform, writableStream, (err) => {
         if (err) {
             console.error("Pipeline failed:", err);
@@ -47,8 +41,7 @@ const inputFileName = () => {
     } else {
         const readableStream = fs.createReadStream(data[2].toString().trim())
         const writableStream = fs.createWriteStream(data[3].toString().trim())
-        const operation = data[4].toString().trim()
-        transformData(readableStream, writableStream, operation)
+        transformData(readableStream, writableStream)
     }
 }
 inputFileName()
